@@ -10,14 +10,19 @@
     .main-container { max-width: 400px; margin: 0 auto; }
     
     .stage { position: relative; width: 100%; aspect-ratio: 4/3; background: #000; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
-    video, .frame-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    video, .frame-overlay, #resultImg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     video { transform: scaleX(-1); }
     .frame-overlay { pointer-events: none; z-index: 2; }
+    
+    /* 拍完照後顯示的成品圖片 */
+    #resultImg { display: none; z-index: 3; }
 
     .btn { display: block; width: 100%; padding: 14px; font-size: 18px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 15px; }
     .btn-start { background: #ff9800; }
     .btn-capture { background: #28a745; display: none; }
-    .btn-download { background: #007bff; display: none; text-decoration: none; text-align: center; line-height: 24px; margin-top: 10px; }
+    .btn-rephoto { background: #6c757d; display: none; }
+    
+    .tip-text { display: none; color: #4fc3f7; font-size: 15px; margin-top: 12px; font-weight: bold; }
     #hiddenCanvas { display: none; }
   </style>
 </head>
@@ -28,13 +33,16 @@
 
     <div class="stage">
       <video id="webcam" autoplay playsinline muted></video>
-      <!-- 修改處：改用同網域的相對路徑 ./frame.png -->
       <img id="frameOverlay" class="frame-overlay" src="./frame.png" alt="相框">
+      <!-- 拍完照後的照片展示區 -->
+      <img id="resultImg" alt="拍好的照片">
     </div>
 
     <button id="startBtn" class="btn btn-start" onclick="initCamera()">📷 開啟即時相機</button>
     <button id="captureBtn" class="btn btn-capture" onclick="takeSnapshot()">⚡ 按下拍照</button>
-    <a id="downloadBtn" class="btn btn-download" download="my-photo.png">✨ 下載剛拍好的照片</a>
+    <button id="rephotoBtn" class="btn btn-rephoto" onclick="resetCamera()">🔄 重拍一張</button>
+    
+    <p id="tipText" class="tip-text">💡 請「長按上方照片」選擇「加入相片」即可儲存！</p>
   </div>
 
   <canvas id="hiddenCanvas"></canvas>
@@ -42,10 +50,12 @@
   <script>
     const video = document.getElementById('webcam');
     const frameOverlay = document.getElementById('frameOverlay');
+    const resultImg = document.getElementById('resultImg');
     const hiddenCanvas = document.getElementById('hiddenCanvas');
     const startBtn = document.getElementById('startBtn');
     const captureBtn = document.getElementById('captureBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
+    const rephotoBtn = document.getElementById('rephotoBtn');
+    const tipText = document.getElementById('tipText');
 
     async function initCamera() {
       try {
@@ -83,20 +93,33 @@
         ctx.drawImage(video, 0, 0, w, h);
         ctx.restore();
 
-        // 2. 疊加相框 (同網域不會污染 Canvas)
+        // 2. 疊加相框
         if (frameOverlay.complete && frameOverlay.naturalWidth !== 0) {
           ctx.drawImage(frameOverlay, 0, 0, w, h);
         }
 
-        // 3. 產出 Base64 圖片
+        // 3. 產出 Base64 並直接呈現成 HTML 圖片
         const imageUrl = hiddenCanvas.toDataURL('image/png');
-        downloadBtn.href = imageUrl;
-        downloadBtn.style.display = 'block';
-        downloadBtn.innerHTML = '✨ 成功產生照片！<br>點此下載儲存至相簿';
+        resultImg.src = imageUrl;
+        resultImg.style.display = 'block'; // 覆蓋在視訊畫面上
+
+        // 切換按鈕與提示文字
+        captureBtn.style.display = 'none';
+        rephotoBtn.style.display = 'block';
+        tipText.style.display = 'block';
 
       } catch (e) {
         alert("照片產生失敗：" + e.message);
       }
+    }
+
+    // 重拍功能
+    function resetCamera() {
+      resultImg.style.display = 'none';
+      resultImg.src = '';
+      captureBtn.style.display = 'block';
+      rephotoBtn.style.display = 'none';
+      tipText.style.display = 'none';
     }
   </script>
 </body>
