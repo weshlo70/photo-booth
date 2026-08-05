@@ -11,7 +11,7 @@
     
     .stage { position: relative; width: 100%; aspect-ratio: 4/3; background: #000; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
     video, .frame-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-    video { transform: scaleX(-1); } /* 鏡像自拍 */
+    video { transform: scaleX(-1); }
     .frame-overlay { pointer-events: none; z-index: 2; }
 
     .btn { display: block; width: 100%; padding: 14px; font-size: 18px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 15px; }
@@ -28,7 +28,8 @@
 
     <div class="stage">
       <video id="webcam" autoplay playsinline muted></video>
-      <img id="frameOverlay" class="frame-overlay" src="https://lh3.googleusercontent.com/d/1Cp6flF9gkNnyOliXlOB3tGkOp4ybpmNE" alt="相框">
+      <!-- 修改處：改用同網域的相對路徑 ./frame.png -->
+      <img id="frameOverlay" class="frame-overlay" src="./frame.png" alt="相框">
     </div>
 
     <button id="startBtn" class="btn btn-start" onclick="initCamera()">📷 開啟即時相機</button>
@@ -53,9 +54,7 @@
           audio: false
         });
         video.srcObject = stream;
-        video.onloadedmetadata = () => {
-          video.play();
-        };
+        video.onloadedmetadata = () => { video.play(); };
         startBtn.style.display = 'none';
         captureBtn.style.display = 'block';
       } catch (err) {
@@ -77,27 +76,26 @@
       const ctx = hiddenCanvas.getContext('2d');
 
       try {
-        // 畫鏡像影像
+        // 1. 畫自拍鏡像畫面
         ctx.save();
         ctx.translate(w, 0);
         ctx.scale(-1, 1);
         ctx.drawImage(video, 0, 0, w, h);
         ctx.restore();
 
-        // 疊加相框
-        if (frameOverlay.src) {
+        // 2. 疊加相框 (同網域不會污染 Canvas)
+        if (frameOverlay.complete && frameOverlay.naturalWidth !== 0) {
           ctx.drawImage(frameOverlay, 0, 0, w, h);
         }
 
-        // 產出圖片
-        const imageUrl = hiddenCanvas.toDataURL('image/png', 1.0);
-        
+        // 3. 產出 Base64 圖片
+        const imageUrl = hiddenCanvas.toDataURL('image/png');
         downloadBtn.href = imageUrl;
         downloadBtn.style.display = 'block';
-        downloadBtn.innerHTML = '✨ 成功產生照片！<br>點此下載儲存到相簿';
+        downloadBtn.innerHTML = '✨ 成功產生照片！<br>點此下載儲存至相簿';
 
       } catch (e) {
-        alert("照片產生失敗，請再試一次。");
+        alert("照片產生失敗：" + e.message);
       }
     }
   </script>
