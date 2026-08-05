@@ -8,7 +8,6 @@
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align: center; background: #121212; color: #fff; margin: 0; padding: 15px; }
     
-    /* 關鍵修改：將最大寬度從 380px 縮小為 280px，高度會自動等比例縮小 */
     .main-container { max-width: 280px; margin: 0 auto; }
     
     .stage { position: relative; width: 100%; aspect-ratio: 9/16; background: #000; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
@@ -59,7 +58,7 @@
     async function initCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user", width: { ideal: 720 }, height: { ideal: 1280 } },
+          video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false
         });
         video.srcObject = stream;
@@ -77,27 +76,48 @@
         return;
       }
 
-      const w = video.videoWidth;
-      const h = video.videoHeight;
+      const vW = video.videoWidth;
+      const vH = video.videoHeight;
       
-      hiddenCanvas.width = w;
-      hiddenCanvas.height = h;
+      // 強制將輸出畫布設定為直式 9:16 (例如 720x1280)
+      const targetW = Math.min(vW, vH);
+      const targetH = Math.round(targetW * (16 / 9));
+      
+      hiddenCanvas.width = targetW;
+      hiddenCanvas.height = targetH;
       const ctx = hiddenCanvas.getContext('2d');
 
       try {
-        // 畫鏡像自拍畫面
-        ctx.save();
-        ctx.translate(w, 0);
-        ctx.scale(-1, 1);
-        ctx.drawImage(video, 0, 0, w, h);
-        ctx.restore();
+        // 1. 計算自拍影像維持比例填滿 (object-fit: cover) 的繪製區域
+        const videoRatio = vW / vH;
+        const targetRatio = targetW / targetH;
+        let sWidth, sHeight, sx, sy;
 
-        // 疊加相框
-        if (frameOverlay.complete && frameOverlay.naturalWidth !== 0) {
-          ctx.drawImage(frameOverlay, 0, 0, w, h);
+        if (videoRatio > targetRatio) {
+          sHeight = vH;
+          sWidth = vH * targetRatio;
+          sx = (vW - sWidth) / 2;
+          sy = 0;
+        } else {
+          sWidth = vW;
+          sHeight = vW / targetRatio;
+          sx = 0;
+          sy = (vH - sHeight) / 2;
         }
 
-        // 產出圖片 (解析度保持原本的高畫質，只有網頁顯示區域變小)
+        // 2. 畫上鏡像自拍畫面
+        ctx.save();
+        ctx.translate(targetW, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, targetW, targetH);
+        ctx.restore();
+
+        // 3. 疊加 9:16 相框
+        if (frameOverlay.complete && frameOverlay.naturalWidth !== 0) {
+          ctx.drawImage(frameOverlay, 0, 0, targetW, targetH);
+        }
+
+        // 4. 輸出成直式照片
         const imageUrl = hiddenCanvas.toDataURL('image/png');
         resultImg.src = imageUrl;
         resultImg.style.display = 'block';
