@@ -17,7 +17,7 @@
     .btn { display: block; width: 100%; padding: 14px; font-size: 18px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 15px; }
     .btn-start { background: #ff9800; }
     .btn-capture { background: #28a745; display: none; }
-    .btn-download { background: #007bff; display: none; text-decoration: none; text-align: center; line-height: 20px; margin-top: 10px; }
+    .btn-download { background: #007bff; display: none; text-decoration: none; text-align: center; line-height: 24px; margin-top: 10px; }
     #hiddenCanvas { display: none; }
   </style>
 </head>
@@ -53,7 +53,9 @@
           audio: false
         });
         video.srcObject = stream;
-        await video.play();
+        video.onloadedmetadata = () => {
+          video.play();
+        };
         startBtn.style.display = 'none';
         captureBtn.style.display = 'block';
       } catch (err) {
@@ -62,27 +64,41 @@
     }
 
     function takeSnapshot() {
-      const w = video.videoWidth || 640;
-      const h = video.videoHeight || 480;
+      if (!video.videoWidth || !video.videoHeight) {
+        alert("相機畫面尚未載入，請稍候再試。");
+        return;
+      }
+
+      const w = video.videoWidth;
+      const h = video.videoHeight;
       
       hiddenCanvas.width = w;
       hiddenCanvas.height = h;
       const ctx = hiddenCanvas.getContext('2d');
 
-      // 畫自拍照（鏡像）
-      ctx.translate(w, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(video, 0, 0, w, h);
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      try {
+        // 畫鏡像影像
+        ctx.save();
+        ctx.translate(w, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, w, h);
+        ctx.restore();
 
-      // 疊加外框
-      if (frameOverlay.src && frameOverlay.complete) {
-        ctx.drawImage(frameOverlay, 0, 0, w, h);
+        // 疊加相框
+        if (frameOverlay.src) {
+          ctx.drawImage(frameOverlay, 0, 0, w, h);
+        }
+
+        // 產出圖片
+        const imageUrl = hiddenCanvas.toDataURL('image/png', 1.0);
+        
+        downloadBtn.href = imageUrl;
+        downloadBtn.style.display = 'block';
+        downloadBtn.innerHTML = '✨ 成功產生照片！<br>點此下載儲存到相簿';
+
+      } catch (e) {
+        alert("照片產生失敗，請再試一次。");
       }
-
-      // 產生下載
-      downloadBtn.href = hiddenCanvas.toDataURL('image/png');
-      downloadBtn.style.display = 'block';
     }
   </script>
 </body>
