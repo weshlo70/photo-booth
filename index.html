@@ -2,142 +2,757 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📸 即時線上拍貼機</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align: center; background: #121212; color: #fff; margin: 0; padding: 15px; }
-    
-    .main-container { max-width: 280px; margin: 0 auto; }
-    
-    .stage { position: relative; width: 100%; aspect-ratio: 9/16; background: #000; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
-    video, .frame-overlay, #resultImg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-    video { transform: scaleX(-1); }
-    .frame-overlay { pointer-events: none; z-index: 2; }
-    #resultImg { display: none; z-index: 3; }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    .btn { display: block; width: 100%; padding: 12px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; margin-top: 12px; }
-    .btn-start { background: #ff9800; }
-    .btn-capture { background: #28a745; display: none; }
-    .btn-rephoto { background: #6c757d; display: none; }
-    
-    .tip-text { display: none; color: #4fc3f7; font-size: 14px; margin-top: 10px; font-weight: bold; line-height: 1.4; }
-    #hiddenCanvas { display: none; }
+  <title>📸 即時線上拍貼機</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-align: center;
+      background: #121212;
+      color: #fff;
+      margin: 0;
+      padding: 15px;
+    }
+
+    /* =========================
+       手機主要內容區
+       ========================= */
+
+    .main-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* =========================
+       16:9 拍攝區域
+       ========================= */
+
+    .stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+
+      background: #000;
+
+      border-radius: 16px;
+      overflow: hidden;
+
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+
+    /* =========================
+       相機、相框、結果照片
+       ========================= */
+
+    video,
+    .frame-overlay,
+    #resultImg {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+    }
+
+    /* 前鏡頭鏡像 */
+
+    video {
+      transform: scaleX(-1);
+    }
+
+    /* 相框永遠在最上面 */
+
+    .frame-overlay {
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* 拍照完成後的照片 */
+
+    #resultImg {
+      display: none;
+      z-index: 3;
+    }
+
+    /* =========================
+       按鈕
+       ========================= */
+
+    .btn {
+      display: block;
+
+      width: 100%;
+
+      padding: 13px;
+
+      font-size: 16px;
+      font-weight: bold;
+
+      color: white;
+
+      border: none;
+      border-radius: 10px;
+
+      cursor: pointer;
+
+      margin-top: 12px;
+
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-start {
+      background: #ff9800;
+    }
+
+    .btn-capture {
+      background: #28a745;
+      display: none;
+    }
+
+    .btn-rephoto {
+      background: #6c757d;
+      display: none;
+    }
+
+    /* =========================
+       提示文字
+       ========================= */
+
+    .tip-text {
+      display: none;
+
+      color: #4fc3f7;
+
+      font-size: 14px;
+
+      margin-top: 10px;
+
+      font-weight: bold;
+
+      line-height: 1.5;
+    }
+
+    /* =========================
+       Canvas
+       ========================= */
+
+    #hiddenCanvas {
+      display: none;
+    }
+
+    /* =========================
+       小手機調整
+       ========================= */
+
+    @media (max-width: 360px) {
+
+      body {
+        padding: 10px;
+      }
+
+      .stage {
+        border-radius: 12px;
+      }
+
+      .btn {
+        padding: 12px;
+        font-size: 15px;
+      }
+
+    }
+
   </style>
 </head>
+
+
 <body>
 
+
   <div class="main-container">
-    <h3 style="margin-top: 0; margin-bottom: 12px;">📸 即時線上拍貼機</h3>
+
+
+    <h3 style="margin-top: 0; margin-bottom: 12px;">
+      📸 即時線上拍貼機
+    </h3>
+
+
+    <!-- =========================
+         16:9 相機區域
+         ========================= -->
 
     <div class="stage">
-      <video id="webcam" autoplay playsinline muted></video>
-      <img id="frameOverlay" class="frame-overlay" src="./frame.png" alt="相框">
-      <img id="resultImg" alt="拍好的照片">
+
+      <!-- 即時相機 -->
+
+      <video
+        id="webcam"
+        autoplay
+        playsinline
+        muted>
+      </video>
+
+
+      <!-- 16:9 相框 -->
+
+      <img
+        id="frameOverlay"
+        class="frame-overlay"
+        src="./frame.png"
+        alt="相框">
+
+
+      <!-- 拍照完成後顯示 -->
+
+      <img
+        id="resultImg"
+        alt="拍好的照片">
+
     </div>
 
-    <button id="startBtn" class="btn btn-start" onclick="initCamera()">📷 開啟即時相機</button>
-    <button id="captureBtn" class="btn btn-capture" onclick="takeSnapshot()">⚡ 按下拍照</button>
-    <button id="rephotoBtn" class="btn btn-rephoto" onclick="resetCamera()">🔄 重拍一張</button>
-    
-    <p id="tipText" class="tip-text">💡 請長按上方照片<br>選擇「加入相片」儲存！</p>
+
+    <!-- =========================
+         開啟相機
+         ========================= -->
+
+    <button
+      id="startBtn"
+      class="btn btn-start"
+      onclick="initCamera()">
+
+      📷 開啟即時相機
+
+    </button>
+
+
+    <!-- =========================
+         拍照
+         ========================= -->
+
+    <button
+      id="captureBtn"
+      class="btn btn-capture"
+      onclick="takeSnapshot()">
+
+      ⚡ 按下拍照
+
+    </button>
+
+
+    <!-- =========================
+         重拍
+         ========================= -->
+
+    <button
+      id="rephotoBtn"
+      class="btn btn-rephoto"
+      onclick="resetCamera()">
+
+      🔄 重拍一張
+
+    </button>
+
+
+    <!-- =========================
+         提示
+         ========================= -->
+
+    <p
+      id="tipText"
+      class="tip-text">
+
+      💡 請長按上方照片<br>
+      選擇「加入相片」儲存！
+
+    </p>
+
+
   </div>
+
+
+  <!-- =========================
+       隱藏 Canvas
+       ========================= -->
 
   <canvas id="hiddenCanvas"></canvas>
 
+
+
   <script>
-    const video = document.getElementById('webcam');
-    const frameOverlay = document.getElementById('frameOverlay');
-    const resultImg = document.getElementById('resultImg');
-    const hiddenCanvas = document.getElementById('hiddenCanvas');
-    const startBtn = document.getElementById('startBtn');
-    const captureBtn = document.getElementById('captureBtn');
-    const rephotoBtn = document.getElementById('rephotoBtn');
-    const tipText = document.getElementById('tipText');
+
+
+    /* =========================
+       取得 HTML 元件
+       ========================= */
+
+    const video =
+      document.getElementById('webcam');
+
+    const frameOverlay =
+      document.getElementById('frameOverlay');
+
+    const resultImg =
+      document.getElementById('resultImg');
+
+    const hiddenCanvas =
+      document.getElementById('hiddenCanvas');
+
+    const startBtn =
+      document.getElementById('startBtn');
+
+    const captureBtn =
+      document.getElementById('captureBtn');
+
+    const rephotoBtn =
+      document.getElementById('rephotoBtn');
+
+    const tipText =
+      document.getElementById('tipText');
+
+
+
+    /* =========================
+       開啟相機
+       ========================= */
 
     async function initCamera() {
+
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: false
-        });
+
+        const stream =
+          await navigator.mediaDevices.getUserMedia({
+
+            video: {
+
+              /*
+               * 使用前鏡頭
+               */
+
+              facingMode: "user",
+
+              /*
+               * 優先要求 16:9
+               */
+
+              width: {
+                ideal: 1280
+              },
+
+              height: {
+                ideal: 720
+              }
+
+            },
+
+            audio: false
+
+          });
+
+
+        /*
+         * 將相機串流放進 video
+         */
+
         video.srcObject = stream;
-        video.onloadedmetadata = () => { video.play(); };
+
+
+        /*
+         * 等待相機載入
+         */
+
+        video.onloadedmetadata = () => {
+
+          video.play();
+
+        };
+
+
+        /*
+         * 隱藏開啟相機按鈕
+         */
+
         startBtn.style.display = 'none';
+
+
+        /*
+         * 顯示拍照按鈕
+         */
+
         captureBtn.style.display = 'block';
+
+
       } catch (err) {
-        alert("無法啟動相機：" + err.message);
+
+        alert(
+          "無法啟動相機：" + err.message
+        );
+
       }
+
     }
+
+
+
+    /* =========================
+       拍照
+       ========================= */
 
     function takeSnapshot() {
-      if (!video.videoWidth || !video.videoHeight) {
-        alert("相機畫面尚未載入，請稍候再試。");
+
+
+      /*
+       * 確認相機已經載入
+       */
+
+      if (
+        !video.videoWidth ||
+        !video.videoHeight
+      ) {
+
+        alert(
+          "相機畫面尚未載入，請稍候再試。"
+        );
+
         return;
+
       }
 
-      const vW = video.videoWidth;
-      const vH = video.videoHeight;
-      
-      // 強制將輸出畫布設定為直式 9:16 (例如 720x1280)
-      const targetW = Math.min(vW, vH);
-      const targetH = Math.round(targetW * (16 / 9));
-      
-      hiddenCanvas.width = targetW;
-      hiddenCanvas.height = targetH;
-      const ctx = hiddenCanvas.getContext('2d');
+
+      /*
+       * 取得相機原始解析度
+       */
+
+      const vW =
+        video.videoWidth;
+
+      const vH =
+        video.videoHeight;
+
+
+      /*
+       * =====================================
+       * 強制輸出 16:9
+       *
+       * 例如：
+       *
+       * 1280 × 720
+       *
+       * 或
+       *
+       * 1920 × 1080
+       * =====================================
+       */
+
+      const targetW =
+        Math.min(
+          vW,
+          Math.round(vH * (16 / 9))
+        );
+
+
+      const targetH =
+        Math.round(
+          targetW * (9 / 16)
+        );
+
+
+      /*
+       * 設定 Canvas 大小
+       */
+
+      hiddenCanvas.width =
+        targetW;
+
+      hiddenCanvas.height =
+        targetH;
+
+
+      /*
+       * 取得 Canvas
+       */
+
+      const ctx =
+        hiddenCanvas.getContext('2d');
+
 
       try {
-        // 1. 計算自拍影像維持比例填滿 (object-fit: cover) 的繪製區域
-        const videoRatio = vW / vH;
-        const targetRatio = targetW / targetH;
-        let sWidth, sHeight, sx, sy;
+
+
+        /*
+         * =====================================
+         * 計算 object-fit: cover
+         * =====================================
+         */
+
+        const videoRatio =
+          vW / vH;
+
+
+        const targetRatio =
+          targetW / targetH;
+
+
+        let sWidth;
+        let sHeight;
+        let sx;
+        let sy;
+
+
+
+        /*
+         * 原始相機畫面比較寬
+         */
 
         if (videoRatio > targetRatio) {
+
+
           sHeight = vH;
-          sWidth = vH * targetRatio;
-          sx = (vW - sWidth) / 2;
+
+          sWidth =
+            vH * targetRatio;
+
+
+          /*
+           * 左右裁切
+           */
+
+          sx =
+            (vW - sWidth) / 2;
+
           sy = 0;
-        } else {
-          sWidth = vW;
-          sHeight = vW / targetRatio;
-          sx = 0;
-          sy = (vH - sHeight) / 2;
+
+
         }
 
-        // 2. 畫上鏡像自拍畫面
+
+        /*
+         * 原始相機畫面比較高
+         */
+
+        else {
+
+
+          sWidth = vW;
+
+          sHeight =
+            vW / targetRatio;
+
+
+          /*
+           * 上下裁切
+           */
+
+          sx = 0;
+
+          sy =
+            (vH - sHeight) / 2;
+
+        }
+
+
+
+        /*
+         * =====================================
+         * 鏡像自拍
+         * =====================================
+         */
+
         ctx.save();
-        ctx.translate(targetW, 0);
-        ctx.scale(-1, 1);
-        ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, targetW, targetH);
+
+
+        /*
+         * 左右翻轉
+         */
+
+        ctx.translate(
+          targetW,
+          0
+        );
+
+
+        ctx.scale(
+          -1,
+          1
+        );
+
+
+        /*
+         * 將相機畫面畫進 Canvas
+         */
+
+        ctx.drawImage(
+
+          video,
+
+          sx,
+          sy,
+
+          sWidth,
+          sHeight,
+
+          0,
+          0,
+
+          targetW,
+          targetH
+
+        );
+
+
         ctx.restore();
 
-        // 3. 疊加 9:16 相框
-        if (frameOverlay.complete && frameOverlay.naturalWidth !== 0) {
-          ctx.drawImage(frameOverlay, 0, 0, targetW, targetH);
+
+
+        /*
+         * =====================================
+         * 疊加 16:9 相框
+         * =====================================
+         */
+
+        if (
+          frameOverlay.complete &&
+          frameOverlay.naturalWidth !== 0
+        ) {
+
+
+          ctx.drawImage(
+
+            frameOverlay,
+
+            0,
+            0,
+
+            targetW,
+            targetH
+
+          );
+
         }
 
-        // 4. 輸出成直式照片
-        const imageUrl = hiddenCanvas.toDataURL('image/png');
-        resultImg.src = imageUrl;
-        resultImg.style.display = 'block';
 
-        captureBtn.style.display = 'none';
-        rephotoBtn.style.display = 'block';
-        tipText.style.display = 'block';
+
+        /*
+         * =====================================
+         * 產生照片
+         * =====================================
+         */
+
+        const imageUrl =
+          hiddenCanvas.toDataURL(
+            'image/png'
+          );
+
+
+        /*
+         * 顯示照片
+         */
+
+        resultImg.src =
+          imageUrl;
+
+        resultImg.style.display =
+          'block';
+
+
+
+        /*
+         * 隱藏拍照按鈕
+         */
+
+        captureBtn.style.display =
+          'none';
+
+
+        /*
+         * 顯示重拍
+         */
+
+        rephotoBtn.style.display =
+          'block';
+
+
+        /*
+         * 顯示提示
+         */
+
+        tipText.style.display =
+          'block';
+
 
       } catch (e) {
-        alert("照片產生失敗：" + e.message);
+
+        alert(
+          "照片產生失敗：" + e.message
+        );
+
       }
+
     }
 
+
+
+    /* =========================
+       重拍
+       ========================= */
+
     function resetCamera() {
-      resultImg.style.display = 'none';
-      resultImg.src = '';
-      captureBtn.style.display = 'block';
-      rephotoBtn.style.display = 'none';
-      tipText.style.display = 'none';
+
+
+      /*
+       * 隱藏結果照片
+       */
+
+      resultImg.style.display =
+        'none';
+
+
+      resultImg.src =
+        '';
+
+
+      /*
+       * 顯示拍照按鈕
+       */
+
+      captureBtn.style.display =
+        'block';
+
+
+      /*
+       * 隱藏重拍
+       */
+
+      rephotoBtn.style.display =
+        'none';
+
+
+      /*
+       * 隱藏提示
+       */
+
+      tipText.style.display =
+        'none';
+
     }
+
+
   </script>
+
+
 </body>
 </html>
