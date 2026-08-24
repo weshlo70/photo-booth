@@ -15,8 +15,8 @@
       box-sizing: border-box;
     }
 
-    body {
 
+    body {
       font-family:
         -apple-system,
         BlinkMacSystemFont,
@@ -40,18 +40,15 @@
        ===================================== */
 
     .main-container {
-
       width: 100%;
-
       max-width: 500px;
-
       margin: 0 auto;
     }
 
 
     /* =====================================
        拍攝區域
-
+       
        實體相片：
        12.7 × 8.9 cm
 
@@ -60,7 +57,6 @@
        ===================================== */
 
     .stage {
-
       position: relative;
 
       width: 100%;
@@ -83,15 +79,12 @@
        ===================================== */
 
     video {
-
       position: absolute;
 
       top: 0;
-
       left: 0;
 
       width: 100%;
-
       height: 100%;
 
       object-fit: cover;
@@ -102,25 +95,20 @@
 
     /* =====================================
        相框
-
-       注意：
-       不使用 object-fit: cover
-
-       改成 contain
-
-       保持原始比例，不變形
+       
+       完整保留
+       等比例縮放
+       不變形
+       不裁切
        ===================================== */
 
     .frame-overlay {
-
       position: absolute;
 
       top: 0;
-
       left: 0;
 
       width: 100%;
-
       height: 100%;
 
       object-fit: contain;
@@ -136,18 +124,17 @@
        ===================================== */
 
     #resultImg {
-
       position: absolute;
 
       top: 0;
-
       left: 0;
 
       width: 100%;
-
       height: 100%;
 
-      object-fit: cover;
+      object-fit: contain;
+
+      background: #000;
 
       display: none;
 
@@ -160,7 +147,6 @@
        ===================================== */
 
     .btn {
-
       display: block;
 
       width: 100%;
@@ -186,39 +172,49 @@
 
 
     .btn:active {
-
       transform: scale(0.98);
     }
 
 
-    .btn-start {
+    /* 開啟相機 */
 
+    .btn-start {
       background: #ff9800;
     }
 
 
-    .btn-capture {
+    /* 拍照 */
 
+    .btn-capture {
       background: #28a745;
 
       display: none;
     }
 
 
-    .btn-rephoto {
+    /* 重拍 */
 
+    .btn-rephoto {
       background: #6c757d;
 
       display: none;
     }
 
 
+    /* 儲存 */
+
+    .btn-save {
+      background: #007bff;
+
+      display: none;
+    }
+
+
     /* =====================================
-       提示
+       提示文字
        ===================================== */
 
     .tip-text {
-
       display: none;
 
       color: #4fc3f7;
@@ -233,28 +229,32 @@
     }
 
 
-    #hiddenCanvas {
+    /* =====================================
+       Canvas
+       ===================================== */
 
+    #hiddenCanvas {
       display: none;
     }
 
 
+    /* =====================================
+       小手機
+       ===================================== */
+
     @media (max-width: 360px) {
 
       body {
-
         padding: 10px;
       }
 
 
       .stage {
-
         border-radius: 12px;
       }
 
 
       .btn {
-
         padding: 12px;
 
         font-size: 15px;
@@ -362,6 +362,20 @@
 
 
   <!-- =====================================
+       儲存照片
+       ===================================== -->
+
+  <button
+    id="saveBtn"
+    class="btn btn-save"
+    onclick="savePhoto()">
+
+    📥 儲存照片
+
+  </button>
+
+
+  <!-- =====================================
        提示
        ===================================== -->
 
@@ -369,8 +383,7 @@
     id="tipText"
     class="tip-text">
 
-    💡 請長按上方照片<br>
-    選擇「加入相片」儲存！
+    💡 可以按「儲存照片」保存原始高解析度照片
 
   </p>
 
@@ -378,7 +391,9 @@
 </div>
 
 
-<!-- Canvas -->
+<!-- =====================================
+     Canvas
+     ===================================== -->
 
 <canvas id="hiddenCanvas"></canvas>
 
@@ -418,6 +433,10 @@ const rephotoBtn =
   document.getElementById('rephotoBtn');
 
 
+const saveBtn =
+  document.getElementById('saveBtn');
+
+
 const tipText =
   document.getElementById('tipText');
 
@@ -425,18 +444,19 @@ const tipText =
 
 /* ==========================================
    最終照片尺寸
-   ==========================================
 
+   實體相片：
    12.7 × 8.9 cm
 
-   使用 1270 × 890 px
+   輸出：
+   2540 × 1780 px
 
-   比例完全一致
+   約 508 DPI
    ========================================== */
 
-const TARGET_WIDTH = 1270;
+const TARGET_WIDTH = 2540;
 
-const TARGET_HEIGHT = 890;
+const TARGET_HEIGHT = 1780;
 
 
 
@@ -511,9 +531,7 @@ async function initCamera() {
 
 
 /* ==========================================
-   計算「完整保留」相框尺寸
-
-   類似 object-fit: contain
+   計算完整保留相框尺寸
 
    不變形
    不裁切
@@ -548,10 +566,8 @@ function calculateContainSize(
     sourceRatio > targetRatio
   ) {
 
-
     drawWidth =
       targetWidth;
-
 
     drawHeight =
       targetWidth / sourceRatio;
@@ -565,10 +581,8 @@ function calculateContainSize(
 
   else {
 
-
     drawHeight =
       targetHeight;
-
 
     drawWidth =
       targetHeight * sourceRatio;
@@ -598,7 +612,7 @@ function takeSnapshot() {
 
 
   /*
-   * 確認相機
+   * 確認相機已載入
    */
 
   if (
@@ -616,7 +630,7 @@ function takeSnapshot() {
 
 
   /*
-   * 相機尺寸
+   * 相機原始尺寸
    */
 
   const vW =
@@ -627,10 +641,13 @@ function takeSnapshot() {
     video.videoHeight;
 
 
-
   /*
    * ======================================
-   * 設定 Canvas
+   * Canvas 固定為
+   *
+   * 2540 × 1780
+   *
+   * 比例 = 12.7 : 8.9
    * ======================================
    */
 
@@ -660,7 +677,7 @@ function takeSnapshot() {
 
     /*
      * ======================================
-     * 相機畫面比例
+     * 計算相機裁切區域
      * ======================================
      */
 
@@ -711,7 +728,9 @@ function takeSnapshot() {
 
 
     /*
-     * 相機比較高
+     * 相機比較窄
+     *
+     * 上下裁切
      */
 
     else {
@@ -737,9 +756,7 @@ function takeSnapshot() {
 
     /*
      * ======================================
-     * 畫相機
-     *
-     * 鏡像
+     * 鏡像相機畫面
      * ======================================
      */
 
@@ -783,7 +800,7 @@ function takeSnapshot() {
 
     /*
      * ======================================
-     * 處理 frame.png
+     * 疊加 frame.png
      *
      * 完整保留
      * 等比例縮放
@@ -806,11 +823,6 @@ function takeSnapshot() {
         frameOverlay.naturalHeight;
 
 
-
-      /*
-       * 計算 contain 尺寸
-       */
-
       const frameSize =
         calculateContainSize(
 
@@ -825,9 +837,8 @@ function takeSnapshot() {
         );
 
 
-
       /*
-       * 讓相框置中
+       * 置中
        */
 
       const frameX =
@@ -840,11 +851,8 @@ function takeSnapshot() {
           frameSize.height) / 2;
 
 
-
       /*
-       * ==================================
        * 畫相框
-       * ==================================
        */
 
       ctx.drawImage(
@@ -867,7 +875,7 @@ function takeSnapshot() {
 
     /*
      * ======================================
-     * 輸出照片
+     * 輸出 PNG
      * ======================================
      */
 
@@ -877,9 +885,10 @@ function takeSnapshot() {
       );
 
 
-
     /*
-     * 顯示結果
+     * ======================================
+     * 顯示實際照片
+     * ======================================
      */
 
     resultImg.src =
@@ -892,7 +901,9 @@ function takeSnapshot() {
 
 
     /*
-     * 按鈕切換
+     * ======================================
+     * 顯示按鈕
+     * ======================================
      */
 
     captureBtn.style.display =
@@ -903,8 +914,29 @@ function takeSnapshot() {
       'block';
 
 
+    saveBtn.style.display =
+      'block';
+
+
     tipText.style.display =
       'block';
+
+
+
+    /*
+     * ======================================
+     * Console 顯示實際尺寸
+     *
+     * 方便確認
+     * ======================================
+     */
+
+    console.log(
+      "最終照片尺寸：",
+      hiddenCanvas.width,
+      "×",
+      hiddenCanvas.height
+    );
 
 
   }
@@ -923,11 +955,83 @@ function takeSnapshot() {
 
 
 /* ==========================================
+   儲存照片
+   ========================================== */
+
+function savePhoto() {
+
+
+  /*
+   * 確認 Canvas 有照片
+   */
+
+  if (
+    !hiddenCanvas.width ||
+    !hiddenCanvas.height
+  ) {
+
+    alert(
+      "目前沒有可以儲存的照片。"
+    );
+
+    return;
+
+  }
+
+
+  /*
+   * 重新從 Canvas 產生 PNG
+   *
+   * 這裡直接使用原始
+   * 2540 × 1780 Canvas
+   */
+
+  const imageUrl =
+    hiddenCanvas.toDataURL(
+      'image/png'
+    );
+
+
+  /*
+   * 建立下載連結
+   */
+
+  const link =
+    document.createElement('a');
+
+
+  link.href =
+    imageUrl;
+
+
+  link.download =
+    'photobooth_2540x1780.png';
+
+
+  /*
+   * 執行下載
+   */
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.body.removeChild(link);
+
+}
+
+
+
+/* ==========================================
    重拍
    ========================================== */
 
 function resetCamera() {
 
+
+  /*
+   * 隱藏結果照片
+   */
 
   resultImg.style.display =
     'none';
@@ -937,13 +1041,33 @@ function resetCamera() {
     '';
 
 
+  /*
+   * 顯示拍照
+   */
+
   captureBtn.style.display =
     'block';
 
 
+  /*
+   * 隱藏重拍
+   */
+
   rephotoBtn.style.display =
     'none';
 
+
+  /*
+   * 隱藏儲存
+   */
+
+  saveBtn.style.display =
+    'none';
+
+
+  /*
+   * 隱藏提示
+   */
 
   tipText.style.display =
     'none';
