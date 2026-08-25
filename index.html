@@ -259,6 +259,14 @@
          ========================= -->
 
     <button
+      id="downloadBtn"
+      class="btn"
+      style="background:#2196f3;display:none;"
+      onclick="downloadPhoto()">
+      💾 下載 1270 × 890 照片
+    </button>
+
+    <button
       id="rephotoBtn"
       class="btn btn-rephoto"
       onclick="resetCamera()">
@@ -320,6 +328,9 @@
 
     const rephotoBtn =
       document.getElementById('rephotoBtn');
+
+    const downloadBtn =
+      document.getElementById('downloadBtn');
 
     const tipText =
       document.getElementById('tipText');
@@ -644,6 +655,16 @@
             'image/png'
           );
 
+        // 強制確認 Canvas 輸出尺寸
+        if (hiddenCanvas.width !== 1270 || hiddenCanvas.height !== 890) {
+          alert(
+            "輸出尺寸錯誤：" +
+            hiddenCanvas.width + " × " +
+            hiddenCanvas.height
+          );
+          return;
+        }
+
 
         /*
          * 顯示照片
@@ -672,6 +693,9 @@
         rephotoBtn.style.display =
           'block';
 
+        downloadBtn.style.display =
+          'block';
+
 
         /*
          * 顯示提示
@@ -696,6 +720,26 @@
     /* =========================
        重拍
        ========================= */
+
+    function downloadPhoto() {
+      // 直接下載 hiddenCanvas，保證檔案本身就是 1270 × 890
+      if (hiddenCanvas.width !== 1270 || hiddenCanvas.height !== 890) {
+        alert(
+          "目前輸出尺寸不是 1270 × 890：" +
+          hiddenCanvas.width + " × " +
+          hiddenCanvas.height
+        );
+        return;
+      }
+
+      const link = document.createElement('a');
+      link.download = 'photo_1270x890.png';
+      link.href = hiddenCanvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
 
     function resetCamera() {
 
@@ -725,6 +769,9 @@
        */
 
       rephotoBtn.style.display =
+        'none';
+
+      downloadBtn.style.display =
         'none';
 
 
