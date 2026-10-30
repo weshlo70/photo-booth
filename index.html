@@ -1046,10 +1046,73 @@
          * =====================================
          */
 
-        const imageUrl =
-          hiddenCanvas.toDataURL(
-            'image/png'
-          );
+/*
+ * =====================================
+ * 加入復古日期時間浮水印
+ * =====================================
+ */
+
+// 取得拍照當下的日期時間
+const now = new Date();
+
+// 格式化日期
+const dateText =
+  now.getFullYear() + '/' +
+  String(now.getMonth() + 1).padStart(2, '0') + '/' +
+  String(now.getDate()).padStart(2, '0');
+
+// 格式化時間
+const timeText =
+  String(now.getHours()).padStart(2, '0') + ':' +
+  String(now.getMinutes()).padStart(2, '0');
+
+// 浮水印樣式
+ctx.save();
+
+// 文字靠右
+ctx.textAlign = 'right';
+ctx.textBaseline = 'bottom';
+
+// 復古數位相機字體
+ctx.font = 'bold 32px Arial';
+
+// 橘紅色
+ctx.fillStyle = '#FF7043';
+
+// 淡淡的黑色陰影
+ctx.shadowColor = 'rgba(0,0,0,0.7)';
+ctx.shadowBlur = 3;
+ctx.shadowOffsetX = 2;
+ctx.shadowOffsetY = 2;
+
+// 右下角位置
+const stampX = targetW - 30;
+
+// 日期
+ctx.fillText(
+  dateText,
+  stampX,
+  targetH - 65
+);
+
+// 時間
+ctx.fillText(
+  timeText,
+  stampX,
+  targetH - 25
+);
+
+ctx.restore();
+
+
+/*
+ * =====================================
+ * 產生照片
+ * =====================================
+ */
+
+const imageUrl =
+  hiddenCanvas.toDataURL('image/png');
 
 
         /*
