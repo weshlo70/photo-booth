@@ -1,14 +1,13 @@
+```html
 <!DOCTYPE html>
-
 <html>
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
   <title>📸 即時線上拍貼機</title>
 
   <style>
-
     * {
       box-sizing: border-box;
     }
@@ -22,107 +21,72 @@
       padding: 15px;
     }
 
-    /* =========================
-       手機主要內容區
-       ========================= */
-
     .main-container {
       width: 100%;
       max-width: 500px;
       margin: 0 auto;
     }
 
-    /* =========================
-       1270 × 890 拍攝區域
-       ========================= */
-
+    /* 拍攝區域 */
     .stage {
       position: relative;
       width: 100%;
       aspect-ratio: 1270 / 890;
-
       background: #000;
-
       border-radius: 16px;
       overflow: hidden;
-
-      box-shadow:
-        0 8px 24px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
     }
-
-    /* =========================
-       相機、相框、結果照片
-       ========================= */
 
     video,
     .frame-overlay,
     #resultImg {
       position: absolute;
-
       top: 0;
       left: 0;
-
       width: 100%;
       height: 100%;
-
       object-fit: cover;
     }
 
     /* 前鏡頭鏡像 */
-
     video {
       transform: scaleX(-1);
     }
 
-    /* 相框永遠在最上面 */
-
+    /* 相框 */
     .frame-overlay {
       pointer-events: none;
       z-index: 2;
     }
 
-    /* 拍照完成後的照片 */
-
+    /* 完成照片 */
     #resultImg {
       display: none;
       z-index: 3;
     }
 
-    /* =========================
-       倒數數字
-       ========================= */
-
+    /* 倒數數字 */
     #countdown {
       position: absolute;
-
       top: 50%;
       left: 50%;
-
       transform: translate(-50%, -50%);
-
       z-index: 10;
-
       display: none;
-
       font-size: 110px;
       font-weight: 900;
-
       line-height: 1;
-
       color: #fff;
-
       text-shadow:
         0 0 10px rgba(0, 0, 0, 0.9),
         0 0 25px rgba(0, 0, 0, 0.8),
         0 0 40px rgba(0, 0, 0, 0.7);
-
       pointer-events: none;
-
       animation: countdownPop 0.9s ease-out;
     }
 
     @keyframes countdownPop {
-
       0% {
         transform: translate(-50%, -50%) scale(1.5);
         opacity: 0;
@@ -142,100 +106,59 @@
         transform: translate(-50%, -50%) scale(0.8);
         opacity: 0;
       }
-
     }
 
-    /* =========================
-       倒數選擇
-       ========================= */
-
+    /* 倒數選擇 */
     .countdown-title {
-
       display: none;
-
       margin-top: 12px;
       margin-bottom: 6px;
-
       font-size: 14px;
       font-weight: bold;
-
       color: #ddd;
-
     }
 
     .countdown-options {
-
       display: none;
-
       width: 100%;
-
       gap: 10px;
-
       margin-top: 8px;
-
     }
 
     .countdown-option {
-
       flex: 1;
-
       padding: 11px;
-
       font-size: 16px;
       font-weight: bold;
-
       color: white;
-
       background: #333;
-
       border: 2px solid #555;
-
       border-radius: 10px;
-
       cursor: pointer;
-
       -webkit-tap-highlight-color: transparent;
-
     }
 
     .countdown-option.active {
-
       background: #ff9800;
-
       border-color: #ff9800;
-
     }
 
     .countdown-option:active {
-
       transform: scale(0.98);
-
     }
 
-    /* =========================
-       按鈕
-       ========================= */
-
+    /* 按鈕 */
     .btn {
-
       display: block;
-
       width: 100%;
-
       padding: 13px;
-
       font-size: 16px;
       font-weight: bold;
-
       color: white;
-
       border: none;
       border-radius: 10px;
-
       cursor: pointer;
-
       margin-top: 12px;
-
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -253,11 +176,8 @@
     }
 
     .btn-capture:disabled {
-
       background: #555;
-
       cursor: not-allowed;
-
     }
 
     .btn-rephoto {
@@ -265,39 +185,23 @@
       display: none;
     }
 
-    /* =========================
-       提示文字
-       ========================= */
-
+    /* 提示文字 */
     .tip-text {
-
       display: none;
-
       color: #4fc3f7;
-
       font-size: 14px;
-
       margin-top: 10px;
-
       font-weight: bold;
-
       line-height: 1.5;
     }
 
-    /* =========================
-       Canvas
-       ========================= */
-
+    /* 隱藏 Canvas */
     #hiddenCanvas {
       display: none;
     }
 
-    /* =========================
-       小手機調整
-       ========================= */
-
+    /* 小手機調整 */
     @media (max-width: 360px) {
-
       body {
         padding: 10px;
       }
@@ -314,171 +218,109 @@
       #countdown {
         font-size: 90px;
       }
-
     }
-
   </style>
-
 </head>
 
 <body>
 
   <div class="main-container">
 
-```
-<h3 style="margin-top: 0; margin-bottom: 12px;">
-  📸 即時線上拍貼機
-</h3>
+    <h3 style="margin-top: 0; margin-bottom: 12px;">
+      📸 即時線上拍貼機
+    </h3>
 
+    <!-- 拍攝區域 -->
+    <div class="stage">
 
-<!-- =========================
-     1270 × 890 相機區域
-     ========================= -->
+      <!-- 即時相機 -->
+      <video
+        id="webcam"
+        autoplay
+        playsinline
+        muted>
+      </video>
 
-<div class="stage">
+      <!-- 相框 -->
+      <img
+        id="frameOverlay"
+        class="frame-overlay"
+        src="./frame.png"
+        alt="相框">
 
+      <!-- 完成照片 -->
+      <img
+        id="resultImg"
+        alt="拍好的照片">
 
-  <!-- 即時相機 -->
+      <!-- 倒數數字 -->
+      <div id="countdown"></div>
 
-  <video
-    id="webcam"
-    autoplay
-    playsinline
-    muted>
-  </video>
+    </div>
 
+    <!-- 開啟相機 -->
+    <button
+      id="startBtn"
+      class="btn btn-start"
+      onclick="initCamera()">
+      📷 開啟即時相機
+    </button>
 
-  <!-- 1270 × 890 相框 -->
+    <!-- 倒數選擇 -->
+    <div
+      id="countdownTitle"
+      class="countdown-title">
+      ⏱️ 選擇拍照倒數時間
+    </div>
 
-  <img
-    id="frameOverlay"
-    class="frame-overlay"
-    src="./frame.png"
-    alt="相框">
+    <div
+      id="countdownOptions"
+      class="countdown-options">
 
+      <button
+        id="countdown3"
+        class="countdown-option active"
+        onclick="selectCountdown(3)">
+        3 秒
+      </button>
 
-  <!-- 拍照完成後顯示 -->
+      <button
+        id="countdown5"
+        class="countdown-option"
+        onclick="selectCountdown(5)">
+        5 秒
+      </button>
 
-  <img
-    id="resultImg"
-    alt="拍好的照片">
+    </div>
 
+    <!-- 拍照 -->
+    <button
+      id="captureBtn"
+      class="btn btn-capture"
+      onclick="startCountdown()">
+      ⚡ 按下拍照
+    </button>
 
-  <!-- =========================
-       倒數數字
-       ========================= -->
+    <!-- 重拍 -->
+    <button
+      id="rephotoBtn"
+      class="btn btn-rephoto"
+      onclick="resetCamera()">
+      🔄 重拍一張
+    </button>
 
-  <div id="countdown"></div>
-
-
-</div>
-
-
-<!-- =========================
-     開啟相機
-     ========================= -->
-
-<button
-  id="startBtn"
-  class="btn btn-start"
-  onclick="initCamera()">
-
-  📷 開啟即時相機
-
-</button>
-
-
-<!-- =========================
-     倒數選擇
-     ========================= -->
-
-<div
-  id="countdownTitle"
-  class="countdown-title">
-
-  ⏱️ 選擇拍照倒數時間
-
-</div>
-
-
-<div
-  id="countdownOptions"
-  class="countdown-options">
-
-  <button
-    id="countdown3"
-    class="countdown-option active"
-    onclick="selectCountdown(3)">
-
-    3 秒
-
-  </button>
-
-
-  <button
-    id="countdown5"
-    class="countdown-option"
-    onclick="selectCountdown(5)">
-
-    5 秒
-
-  </button>
-
-</div>
-
-
-<!-- =========================
-     拍照
-     ========================= -->
-
-<button
-  id="captureBtn"
-  class="btn btn-capture"
-  onclick="startCountdown()">
-
-  ⚡ 按下拍照
-
-</button>
-
-
-<!-- =========================
-     重拍
-     ========================= -->
-
-<button
-  id="rephotoBtn"
-  class="btn btn-rephoto"
-  onclick="resetCamera()">
-
-  🔄 重拍一張
-
-</button>
-
-
-<!-- =========================
-     提示
-     ========================= -->
-
-<p
-  id="tipText"
-  class="tip-text">
-
-  💡 請長按上方照片<br>
-  選擇「加入相片」儲存！
-
-</p>
-```
+    <!-- 提示 -->
+    <p id="tipText" class="tip-text">
+      💡 請長按上方照片<br>
+      選擇「加入相片」儲存！
+    </p>
 
   </div>
 
-  <!-- =========================
-       隱藏 Canvas
-       ========================= -->
-
-<canvas id="hiddenCanvas"></canvas>
+  <!-- 隱藏 Canvas -->
+  <canvas id="hiddenCanvas"></canvas>
 
   <script>
-
 
     /* =========================
        取得 HTML 元件
@@ -545,16 +387,7 @@
           await navigator.mediaDevices.getUserMedia({
 
             video: {
-
-              /*
-               * 使用前鏡頭
-               */
-
               facingMode: "user",
-
-              /*
-               * 優先要求 16:9
-               */
 
               width: {
                 ideal: 1280
@@ -563,58 +396,23 @@
               height: {
                 ideal: 720
               }
-
             },
 
             audio: false
 
           });
 
-
-        /*
-         * 將相機串流放進 video
-         */
-
         video.srcObject = stream;
 
+        await video.play();
 
-        /*
-         * 等待相機載入
-         */
+        startBtn.style.display = 'none';
 
-        video.onloadedmetadata = () => {
+        countdownTitle.style.display = 'block';
 
-          video.play();
+        countdownOptions.style.display = 'flex';
 
-        };
-
-
-        /*
-         * 隱藏開啟相機按鈕
-         */
-
-        startBtn.style.display =
-          'none';
-
-
-        /*
-         * 顯示倒數選擇
-         */
-
-        countdownTitle.style.display =
-          'block';
-
-        countdownOptions.style.display =
-          'flex';
-
-
-        /*
-         * 顯示拍照按鈕
-         */
-
-        captureBtn.style.display =
-          'block';
-
+        captureBtn.style.display = 'block';
 
       } catch (err) {
 
@@ -634,43 +432,23 @@
 
     function selectCountdown(seconds) {
 
-      /*
-       * 如果正在倒數
-       * 不允許切換
-       */
-
       if (isCountingDown) {
         return;
       }
 
-
-      selectedCountdown =
-        seconds;
-
-
-      /*
-       * 更新按鈕狀態
-       */
+      selectedCountdown = seconds;
 
       if (seconds === 3) {
 
-        countdown3.classList.add(
-          'active'
-        );
+        countdown3.classList.add('active');
 
-        countdown5.classList.remove(
-          'active'
-        );
+        countdown5.classList.remove('active');
 
       } else {
 
-        countdown5.classList.add(
-          'active'
-        );
+        countdown5.classList.add('active');
 
-        countdown3.classList.remove(
-          'active'
-        );
+        countdown3.classList.remove('active');
 
       }
 
@@ -683,103 +461,49 @@
 
     function startCountdown() {
 
-
-      /*
-       * 防止重複按下
-       */
-
       if (isCountingDown) {
         return;
       }
 
+      if (!video.videoWidth || !video.videoHeight) {
 
-      /*
-       * 確認相機已經載入
-       */
-
-      if (
-        !video.videoWidth ||
-        !video.videoHeight
-      ) {
-
-        alert(
-          "相機畫面尚未載入，請稍候再試。"
-        );
+        alert("相機畫面尚未載入，請稍候再試。");
 
         return;
 
       }
 
+      isCountingDown = true;
 
-      isCountingDown =
-        true;
+      captureBtn.disabled = true;
 
-
-      /*
-       * 暫時禁止拍照按鈕
-       */
-
-      captureBtn.disabled =
-        true;
-
-
-      /*
-       * 開始倒數
-       */
-
-      let number =
-        selectedCountdown;
-
+      let number = selectedCountdown;
 
       showCountdownNumber(number);
 
+      const timer = setInterval(() => {
 
-      const timer =
-        setInterval(() => {
+        number--;
 
-          number--;
+        if (number > 0) {
 
+          showCountdownNumber(number);
 
-          if (number > 0) {
+        } else {
 
-            showCountdownNumber(
-              number
-            );
+          clearInterval(timer);
 
-          } else {
+          countdown.style.display = 'none';
 
-            clearInterval(timer);
+          isCountingDown = false;
 
+          captureBtn.disabled = false;
 
-            /*
-             * 隱藏倒數
-             */
+          takeSnapshot();
 
-            countdown.style.display =
-              'none';
+        }
 
-
-            /*
-             * 恢復狀態
-             */
-
-            isCountingDown =
-              false;
-
-
-            captureBtn.disabled =
-              false;
-
-
-            /*
-             * 真正拍照
-             */
-
-            takeSnapshot();
-
-          }
-
-        }, 1000);
+      }, 1000);
 
     }
 
@@ -790,27 +514,87 @@
 
     function showCountdownNumber(number) {
 
-      countdown.textContent =
-        number;
+      countdown.textContent = number;
 
-
-      /*
-       * 重新觸發動畫
-       */
-
-      countdown.style.animation =
-        'none';
-
+      countdown.style.animation = 'none';
 
       void countdown.offsetWidth;
 
+      countdown.style.animation = 'countdownPop 0.9s ease-out';
 
-      countdown.style.animation =
-        'countdownPop 0.9s ease-out';
+      countdown.style.display = 'block';
+
+    }
 
 
-      countdown.style.display =
-        'block';
+    /* =========================
+       復古日期時間浮水印
+       ========================= */
+
+    function drawDateWatermark(ctx, width, height) {
+
+      // 取得拍照當下的裝置本地時間
+      const now = new Date();
+
+      // 日期
+      const year = now.getFullYear();
+
+      const month = String(
+        now.getMonth() + 1
+      ).padStart(2, '0');
+
+      const day = String(
+        now.getDate()
+      ).padStart(2, '0');
+
+      // 時間
+      const hours = String(
+        now.getHours()
+      ).padStart(2, '0');
+
+      const minutes = String(
+        now.getMinutes()
+      ).padStart(2, '0');
+
+      // 完整日期時間
+      const dateTimeText =
+        `${year}/${month}/${day} ${hours}:${minutes}`;
+
+      ctx.save();
+
+      // 復古相機字體
+      ctx.font = 'bold 32px Arial, sans-serif';
+
+      // 靠左對齊
+      ctx.textAlign = 'left';
+
+      ctx.textBaseline = 'bottom';
+
+      // 橘紅色日期
+      ctx.fillStyle = '#FF7043';
+
+      // 黑色陰影，讓文字清楚
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+
+      ctx.shadowBlur = 3;
+
+      ctx.shadowOffsetX = 2;
+
+      ctx.shadowOffsetY = 2;
+
+      // 左下角位置
+      const stampX = 30;
+
+      const stampY = height - 25;
+
+      // 寫入照片
+      ctx.fillText(
+        dateTimeText,
+        stampX,
+        stampY
+      );
+
+      ctx.restore();
 
     }
 
@@ -821,83 +605,39 @@
 
     function takeSnapshot() {
 
+      if (!video.videoWidth || !video.videoHeight) {
 
-      /*
-       * 確認相機已經載入
-       */
-
-      if (
-        !video.videoWidth ||
-        !video.videoHeight
-      ) {
-
-        alert(
-          "相機畫面尚未載入，請稍候再試。"
-        );
+        alert("相機畫面尚未載入，請稍候再試。");
 
         return;
 
       }
 
+      // 相機原始解析度
+      const vW = video.videoWidth;
 
-      /*
-       * 取得相機原始解析度
-       */
+      const vH = video.videoHeight;
 
-      const vW =
-        video.videoWidth;
-
-      const vH =
-        video.videoHeight;
-
-
-      /*
-       * =====================================
-       * 強制輸出 1270 × 890
-       * =====================================
-       */
-
+      // 固定輸出尺寸
       const targetW = 1270;
 
       const targetH = 890;
 
+      hiddenCanvas.width = targetW;
 
-      /*
-       * 設定 Canvas 大小
-       */
+      hiddenCanvas.height = targetH;
 
-      hiddenCanvas.width =
-        targetW;
-
-      hiddenCanvas.height =
-        targetH;
-
-
-      /*
-       * 取得 Canvas
-
-       */
-
-      const ctx =
-        hiddenCanvas.getContext('2d');
-
+      const ctx = hiddenCanvas.getContext('2d');
 
       try {
 
+        /* =========================
+           計算 object-fit: cover
+           ========================= */
 
-        /*
-         * =====================================
-         * 計算 object-fit: cover
-         * =====================================
-         */
+        const videoRatio = vW / vH;
 
-        const videoRatio =
-          vW / vH;
-
-
-        const targetRatio =
-          targetW / targetH;
-
+        const targetRatio = targetW / targetH;
 
         let sWidth;
 
@@ -907,90 +647,38 @@
 
         let sy;
 
+        if (videoRatio > targetRatio) {
 
-        /*
-         * 原始相機畫面比較寬
-         */
+          sHeight = vH;
 
-        if (
-          videoRatio >
-          targetRatio
-        ) {
+          sWidth = vH * targetRatio;
 
-          sHeight =
-            vH;
+          sx = (vW - sWidth) / 2;
 
-          sWidth =
-            vH * targetRatio;
+          sy = 0;
 
+        } else {
 
-          /*
-           * 左右裁切
-           */
+          sWidth = vW;
 
-          sx =
-            (vW - sWidth) / 2;
+          sHeight = vW / targetRatio;
 
-          sy =
-            0;
+          sx = 0;
+
+          sy = (vH - sHeight) / 2;
 
         }
 
 
-        /*
-         * 原始相機畫面比較高
-         */
-
-        else {
-
-          sWidth =
-            vW;
-
-          sHeight =
-            vW / targetRatio;
-
-
-          /*
-           * 上下裁切
-           */
-
-          sx =
-            0;
-
-          sy =
-            (vH - sHeight) / 2;
-
-        }
-
-
-        /*
-         * =====================================
-         * 鏡像自拍
-         * =====================================
-         */
+        /* =========================
+           鏡像自拍
+           ========================= */
 
         ctx.save();
 
+        ctx.translate(targetW, 0);
 
-        /*
-         * 左右翻轉
-         */
-
-        ctx.translate(
-          targetW,
-          0
-        );
-
-
-        ctx.scale(
-          -1,
-          1
-        );
-
-
-        /*
-         * 將相機畫面畫進 Canvas
-         */
+        ctx.scale(-1, 1);
 
         ctx.drawImage(
 
@@ -1010,15 +698,12 @@
 
         );
 
-
         ctx.restore();
 
 
-        /*
-         * =====================================
-         * 疊加 1270 × 890 相框
-         * =====================================
-         */
+        /* =========================
+           疊加相框
+           ========================= */
 
         if (
           frameOverlay.complete &&
@@ -1040,84 +725,23 @@
         }
 
 
-        /*
-         * =====================================
-         * 產生照片
-         * =====================================
-         */
+        /* =========================
+           加入日期時間浮水印
+           ========================= */
 
-/*
- * =====================================
- * 加入復古日期時間浮水印
- * =====================================
- */
-
-// 取得拍照當下的日期時間
-const now = new Date();
-
-// 格式化日期
-const dateText =
-  now.getFullYear() + '/' +
-  String(now.getMonth() + 1).padStart(2, '0') + '/' +
-  String(now.getDate()).padStart(2, '0');
-
-// 格式化時間
-const timeText =
-  String(now.getHours()).padStart(2, '0') + ':' +
-  String(now.getMinutes()).padStart(2, '0');
-
-// 浮水印樣式
-ctx.save();
-
-// 文字靠右
-ctx.textAlign = 'right';
-ctx.textBaseline = 'bottom';
-
-// 復古數位相機字體
-ctx.font = 'bold 32px Arial';
-
-// 橘紅色
-ctx.fillStyle = '#FF7043';
-
-// 淡淡的黑色陰影
-ctx.shadowColor = 'rgba(0,0,0,0.7)';
-ctx.shadowBlur = 3;
-ctx.shadowOffsetX = 2;
-ctx.shadowOffsetY = 2;
-
-// 右下角位置
-const stampX = targetW - 30;
-
-// 日期
-ctx.fillText(
-  dateText,
-  stampX,
-  targetH - 65
-);
-
-// 時間
-ctx.fillText(
-  timeText,
-  stampX,
-  targetH - 25
-);
-
-ctx.restore();
+        drawDateWatermark(
+          ctx,
+          targetW,
+          targetH
+        );
 
 
-/*
- * =====================================
- * 產生照片
- * =====================================
- */
+        /* =========================
+           產生照片
+           ========================= */
 
-const imageUrl =
-  hiddenCanvas.toDataURL('image/png');
-
-
-        /*
-         * 強制確認 Canvas 輸出尺寸
-         */
+        const imageUrl =
+          hiddenCanvas.toDataURL('image/png');
 
         if (
           hiddenCanvas.width !== 1270 ||
@@ -1136,49 +760,26 @@ const imageUrl =
         }
 
 
-        /*
-         * 顯示照片
-         */
+        /* =========================
+           顯示照片
+           ========================= */
 
-        resultImg.src =
-          imageUrl;
+        resultImg.src = imageUrl;
 
-        resultImg.style.display =
-          'block';
+        resultImg.style.display = 'block';
 
+        // 隱藏拍照控制
+        captureBtn.style.display = 'none';
 
-        /*
-         * 隱藏拍照相關控制
+        countdownTitle.style.display = 'none';
 
-         */
+        countdownOptions.style.display = 'none';
 
-        captureBtn.style.display =
-          'none';
+        // 顯示重拍
+        rephotoBtn.style.display = 'block';
 
-        countdownTitle.style.display =
-          'none';
-
-        countdownOptions.style.display =
-          'none';
-
-
-        /*
-         * 顯示重拍
-
-         */
-
-        rephotoBtn.style.display =
-          'block';
-
-
-        /*
-         * 顯示提示
-
-         */
-
-        tipText.style.display =
-          'block';
-
+        // 顯示提示
+        tipText.style.display = 'block';
 
       } catch (e) {
 
@@ -1198,68 +799,25 @@ const imageUrl =
 
     function resetCamera() {
 
+      resultImg.style.display = 'none';
 
-      /*
-       * 隱藏結果照片
-       */
+      resultImg.src = '';
 
-      resultImg.style.display =
-        'none';
+      countdownTitle.style.display = 'block';
 
+      countdownOptions.style.display = 'flex';
 
-      resultImg.src =
-        '';
+      captureBtn.style.display = 'block';
 
+      captureBtn.disabled = false;
 
-      /*
-       * 顯示倒數選擇
-       */
+      rephotoBtn.style.display = 'none';
 
-      countdownTitle.style.display =
-        'block';
+      tipText.style.display = 'none';
 
-      countdownOptions.style.display =
-        'flex';
+      countdown.style.display = 'none';
 
-
-      /*
-       * 顯示拍照按鈕
-       */
-
-      captureBtn.style.display =
-        'block';
-
-      captureBtn.disabled =
-        false;
-
-
-      /*
-       * 隱藏重拍
-       */
-
-      rephotoBtn.style.display =
-        'none';
-
-
-      /*
-       * 隱藏提示
-       */
-
-      tipText.style.display =
-        'none';
-
-
-      /*
-       * 確保倒數歸零
-
-       */
-
-      countdown.style.display =
-        'none';
-
-
-      isCountingDown =
-        false;
+      isCountingDown = false;
 
     }
 
